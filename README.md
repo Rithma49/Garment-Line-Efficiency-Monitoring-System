@@ -1,150 +1,113 @@
 # GLEMS — Garment Line Efficiency Monitoring System
 
-Hey! This is a simple web app I built for garment factories. It helps you keep track of everything that happens on the factory floor — production, workers, machines, attendance, and more — all in one place.
+A simple web system to manage garment factory production, workers, machines, and reports — all in one place.
 
-It's made with PHP and MySQL, and it runs on XAMPP. No internet needed, so you can run it on any computer in the office.
-
----
-
-## Why I made this
-
-Garment factories deal with a lot of daily data. How many pieces did each line produce? Who came to work today? Which machine broke down and for how long? Doing all this on paper is slow, and mistakes happen all the time.
-
-So I made GLEMS to fix that. Now everything goes into one system, and the numbers come out automatically. Managers can just log in and see what's going on.
+Built with **PHP + MySQL**. Runs on **XAMPP**. No internet needed.
 
 ---
 
-## What you can do with it
+## About the System
 
-You can manage production lines, add workers and machines, and enter daily production numbers. The system will calculate efficiency for you automatically — no more manual math.
+GLEMS is a web-based management system built for garment factories. It helps factory managers, supervisors, and admins keep track of everything that happens on the production floor.
 
-There's also attendance tracking (present, absent, late), machine downtime records, and a place to log quality defects. You can add buyers and orders too, so you know what's coming and when it's due.
+Instead of using papers and spreadsheets, everything goes into one system. Production numbers, worker attendance, machine breakdowns, quality defects, buyers, and orders — all stored safely in a database.
 
-The dashboard gives you a quick look at today's output and efficiency with charts. The reports page lets you filter by date and export everything as a CSV file.
+The best part is **efficiency is calculated automatically**. When you enter daily production data, the system calculates the efficiency percentage right away. No manual math, no mistakes.
 
-If you're an admin, you can also manage users, change settings, and back up or restore the whole database.
+The dashboard shows daily output and efficiency with simple charts, so managers can quickly see how the factory is doing. The reports page lets you filter by date and export data as a CSV file.
 
----
+The system also supports **four user roles** — Admin, Manager, Supervisor, and Operator — so each person sees only what they need. Every important action is recorded in an activity log, so you always know who did what and when.
 
-## What you need
-
-- XAMPP (Apache + MySQL + PHP) — download it from https://www.apachefriends.org
-- PHP 7.4 or newer
-- Any modern browser (Chrome, Firefox, Edge — anything works)
-
-No extra libraries or frameworks to install.
+Since it runs on XAMPP, you can use it on any local computer or office network. No monthly fees, no cloud subscriptions, and your data stays with you.
 
 ---
 
-## How to set it up
+## Features
 
-First, drop the project folder into XAMPP's htdocs folder:
+### Production Management
+- **Production Lines** — Add, edit, and delete production lines
+- **Production Entry** — Enter daily production numbers, hours, and defects
+- **Production Targets** — Set daily targets for each line
+- **Production Planning** — View a 7-day plan across all lines
+- **Auto Efficiency** — Efficiency percentage calculated automatically
 
-```
-C:\xampp\htdocs\project\Garment Line Efficiency Monitoring System\
-```
+### People Management
+- **Operators** — Manage workers with skill levels (beginner, intermediate, expert)
+- **Attendance** — Mark present, absent, late, half-day, or leave
+- **Overtime** — Track overtime hours per worker
+- **Operator Performance** — See which operator is best and who needs help
 
-Then open XAMPP Control Panel and start Apache and MySQL. Both need to be running.
+### Machine Management
+- **Machines** — Full machine registry with image upload
+- **Machine Downtime** — Record when machines stop, why, and for how long
 
-Next, open http://localhost/phpmyadmin in your browser. Click the Import tab, choose the file `database/glems_schema.sql`, and hit Go. That's it — the database gets created with all the tables.
+### Business Management
+- **Buyers** — Store buyer and customer details
+- **Orders** — Track orders with style numbers and delivery dates
+- **Quality Defects** — Record defects per order and per line
 
-Finally, open this link in your browser:
+### Insights & Reports
+- **Dashboard** — Live summary with efficiency and output charts
+- **Reports** — Filter production data by date range
+- **CSV Export** — Download reports as CSV files
+- **Activity Log** — Full audit trail of all user actions
 
-```
-http://localhost/project/Garment%20Line%20Efficiency%20Monitoring%20System/
-```
-
-You'll see the login page.
-
----
-
-## Logging in
-
-The default admin account is:
-
-- Username: admin
-- Password: admin123
-
-Please change the password right after your first login. It's just a default to get you started.
-
----
-
-## User roles
-
-There are four roles in the system. Admins get full access to everything. Managers can handle production data. Supervisors manage lines, operators, and daily production. Operators get basic access.
-
-Only admins can touch users, settings, and backups — that keeps things safe.
-
----
-
-## How efficiency is calculated
-
-The formula is simple:
-
-```
-Efficiency % = (Quantity Produced ÷ (Working Hours × 60)) × 100
-```
-
-So if a line produced 480 pieces in 8 hours, that's (480 ÷ (8 × 60)) × 100 = 100%. Easy.
+### System Management
+- **Users** — Role-based accounts (Admin, Manager, Supervisor, Operator)
+- **Settings** — Change company name, currency, timezone, etc.
+- **Backup** — Download a full database backup as a .sql file
+- **Restore** — Load a backup file to restore the database
+- **Notifications** — System alerts for important events
+- **Profile** — Update your own details and change password
 
 ---
 
-## Daily work
+## Tech Stack
 
-The normal flow goes like this. Log in, then go to Production Entry and add today's numbers. The system handles the rest.
+### Backend
+| Technology | Purpose |
+|-----------|---------|
+| **PHP 7.4+** | Server-side scripting |
+| **PDO** | Database connection (secure, prepared statements) |
+| **MySQL 5.7+** | Relational database (InnoDB engine) |
 
-After that, mark attendance for the workers. If a machine stopped working, record it under Machine Downtime. If you found defects, log them under Quality Defects.
+### Frontend
+| Technology | Purpose |
+|-----------|---------|
+| **HTML5** | Page structure |
+| **CSS3** | Custom styling |
+| **JavaScript (ES6)** | Interactivity and AJAX |
+| **Bootstrap 5** | Responsive UI framework |
+| **Bootstrap Icons** | Icon set |
+| **Chart.js** | Interactive charts on dashboard |
 
-Check the Dashboard anytime for a quick summary. And when you need a report, head to the Reports page — you can filter by date and download a CSV.
+### Server / Environment
+| Technology | Purpose |
+|-----------|---------|
+| **XAMPP** | Local development server (Apache + MySQL + PHP) |
+| **Apache** | Web server |
 
----
+### Security
+| Feature | How it works |
+|---------|--------------|
+| **Password Hashing** | Passwords stored with `password_hash()` |
+| **CSRF Protection** | Token verification on all POST forms |
+| **SQL Injection Prevention** | All queries use prepared statements |
+| **Session Auth** | Session-based login system |
+| **Role-Based Access** | Users only see what their role allows |
+| **Activity Logging** | Every important action is recorded |
 
-## Backup and restore
-
-If you're an admin, go to the Backup page to download a full .sql file of the database. Keep it safe.
-
-To restore, go to the Restore page, pick your .sql file, and click Restore. Just a heads up — this will wipe everything currently in the database and replace it with the backup. So be careful.
-
----
-
-## What it's built with
-
-Backend is PHP with PDO for the database. The database is MySQL. The frontend is plain HTML, CSS, and JavaScript, with Bootstrap 5 for the styling. Charts are made with Chart.js. Icons come from Bootstrap Icons.
-
-Nothing fancy — just stuff that works.
-
----
-
-## Security
-
-Passwords are hashed, so they're never stored in plain text. Every form has a CSRF token. Database queries use prepared statements to stop SQL injection. Logins are session-based, and users only see what their role allows. Every important action also gets written to an activity log, so you always know who did what.
-
----
-
-## If something goes wrong
-
-If you see "Database connection failed," make sure MySQL is actually running in XAMPP. Also check the settings in config/database.php.
-
-If you get a 404, check the folder name in the URL — it has to match exactly.
-
-If you see "Invalid CSRF token," just clear your browser cookies and log in again. That usually fixes it.
-
-If images aren't uploading, make sure the folders uploads/machines/ and uploads/operators/ exist.
-
-And if login doesn't work at all, re-import the SQL file. The default admin should be there.
-
----
-
-## A couple of notes
-
-Time zone is set to Asia/Colombo, currency is LKR, and dates are in YYYY-MM-DD format. The database tables use InnoDB so foreign keys work properly.
+### Architecture
+| Aspect | Detail |
+|--------|--------|
+| **Pattern** | Simple MVC-like structure (config, includes, pages) |
+| **Database** | MySQL with foreign key relationships |
+| **File Uploads** | Images stored in `uploads/` folder |
+| **AJAX** | Small JSON endpoints in `ajax/` folder |
+| **Routing** | Direct file access (no framework) |
 
 ---
 
-## Version
-
-Version 1.0.0. Free to use for learning or in a real factory. Do whatever you want with it.
-
 ---
 
-That's pretty much it. Hope it helps someone out there. 
+Made with ❤️ for garment factories.
