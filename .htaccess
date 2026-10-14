@@ -1,0 +1,16 @@
+# GLEMS - Apache configuration
+Options -Indexes
+RewriteEngine On
+
+# Deny direct access to sensitive folders
+<IfModule mod_rewrite.c>
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^includes/ - [F,L]
+    RewriteRule ^database/ - [F,L]
+    RewriteRule ^vendor/ - [F,L]
+</IfModule>
+
+# Prevent .sql / .log files from being downloaded directly
+<FilesMatch "\.(sql|log|md)$">
+    Require all denied
+</FilesMatch>

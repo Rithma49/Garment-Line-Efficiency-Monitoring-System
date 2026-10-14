@@ -1,0 +1,32 @@
+# Uploads — these are user content, no need to track them.
+# The .gitkeep files keep the empty folders in Git.
+uploads/machines/*
+uploads/operators/*
+!uploads/machines/.gitkeep
+!uploads/operators/.gitkeep
+
+# Local config files — might have passwords or local settings.
+# Don't want these on GitHub.
+.env
+config/*.local.php
+
+# Log files — nobody needs these in version control.
+*.log
+error_log
+
+# Database backups — these can be huge, keep them local.
+backup_*.sql
+
+# Vendor folder — Composer downloads this. Not needed in Git.
+/vendor/
+
+# Operating system junk files.
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor and IDE folders.
+.vscode/
+.idea/
+*.iml
+*.sublime-*

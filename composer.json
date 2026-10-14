@@ -1,0 +1,9 @@
+{
+    "name": "glems/garment-line-efficiency-monitoring-system",
+    "description": "Garment Line Efficiency Monitoring System (GLEMS)",
+    "require": {
+        "php": ">=8.0",
+        "mpdf/mpdf": "^8.2",
+        "phpoffice/phpspreadsheet": "^1.29"
+    }
+}
