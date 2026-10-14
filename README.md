@@ -88,7 +88,7 @@ Since it runs on XAMPP, you can use it on any local computer or office network. 
 | **Apache** | Web server |
 
 ### Security
-| Feature | How it works |
+| Feature | How it works |  
 |---------|--------------|
 | **Password Hashing** | Passwords stored with `password_hash()` |
 | **CSRF Protection** | Token verification on all POST forms |
@@ -107,7 +107,3 @@ Since it runs on XAMPP, you can use it on any local computer or office network. 
 | **Routing** | Direct file access (no framework) |
 
 ---
-
----
-
-Made with ❤️ for garment factories.
