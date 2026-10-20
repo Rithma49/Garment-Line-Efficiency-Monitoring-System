@@ -25,13 +25,22 @@ function editLine(line) {
 
 document.getElementById('lineForm').addEventListener('submit', function (e) {
     e.preventDefault();
-    ajaxSubmit(this, () => { lineModal.hide(); setTimeout(() => location.reload(), 600); });
+    ajaxSubmit(this, () => {
+        lineModal.hide();
+        setTimeout(() => location.reload(), 600);
+    });
 });
 
 function deleteLine(id) {
     if (!confirmDelete('Delete this production line? Related targets and records will also be affected.')) return;
-    $.post(BASE_URL_JS + '/ajax/production_lines_delete.php', { line_id: id, csrf_token: CSRF_TOKEN }, function (res) {
-        showToast(res.success ? 'success' : 'danger', res.message);
-        if (res.success) setTimeout(() => location.reload(), 600);
-    }, 'json');
+
+    $.post(
+        BASE_URL_JS + '/ajax/production_lines_delete.php',
+        { line_id: id, csrf_token: CSRF_TOKEN },
+        function (res) {
+            showToast(res.success ? 'success' : 'danger', res.message);
+            if (res.success) setTimeout(() => location.reload(), 600);
+        },
+        'json'
+    );
 }

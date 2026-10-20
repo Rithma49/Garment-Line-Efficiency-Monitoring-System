@@ -3,17 +3,22 @@ Chart.defaults.font.size = 12;
 Chart.defaults.color = '#64748B';
 
 const COLORS = {
-    primary: '#1E3A8A', primaryLight: 'rgba(30,58,138,0.12)',
-    success: '#16A34A', warning: '#F59E0B', danger: '#DC2626',
-    palette: ['#1E3A8A', '#16A34A', '#F59E0B', '#DC2626', '#0EA5E9', '#8B5CF6', '#EC4899', '#14B8A6']
+    primary: '#1E3A8A',
+    primaryLight: 'rgba(30,58,138,0.12)',
+    success: '#16A34A',
+    warning: '#F59E0B',
+    danger: '#DC2626',
+    palette: ['#1E3A8A', '#16A34A', '#F59E0B', '#DC2626', '#0EA5E9', '#8B5CF6', '#EC4899', '#14B8A6'],
 };
 
 let productionChart;
+
 function renderProductionChart(mode) {
     const src = mode === 'weekly' ? chartWeekly : chartHourly;
     const ctx = document.getElementById('productionChart');
     if (!ctx) return;
     if (productionChart) productionChart.destroy();
+
     productionChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -23,16 +28,23 @@ function renderProductionChart(mode) {
                 data: src.data,
                 borderColor: COLORS.primary,
                 backgroundColor: COLORS.primaryLight,
-                fill: true, tension: 0.35, pointRadius: 3, pointBackgroundColor: COLORS.primary,
-            }]
+                fill: true,
+                tension: 0.35,
+                pointRadius: 3,
+                pointBackgroundColor: COLORS.primary,
+            }],
         },
         options: {
             responsive: true,
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, grid: { color: '#EEF2F7' } }, x: { grid: { display: false } } }
-        }
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#EEF2F7' } },
+                x: { grid: { display: false } },
+            },
+        },
     });
 }
+
 document.querySelectorAll('[data-range]').forEach(btn => {
     btn.addEventListener('click', function () {
         document.querySelectorAll('[data-range]').forEach(b => b.classList.remove('active'));
@@ -40,6 +52,7 @@ document.querySelectorAll('[data-range]').forEach(btn => {
         renderProductionChart(this.dataset.range);
     });
 });
+
 renderProductionChart('hourly');
 
 if (document.getElementById('lineEffChart')) {
@@ -52,13 +65,16 @@ if (document.getElementById('lineEffChart')) {
                 data: chartLineEff.data,
                 backgroundColor: chartLineEff.data.map(v => v >= 85 ? COLORS.success : v >= 70 ? COLORS.warning : COLORS.danger),
                 borderRadius: 6,
-            }]
+            }],
         },
         options: {
             indexAxis: 'y',
             plugins: { legend: { display: false } },
-            scales: { x: { beginAtZero: true, max: 120, grid: { color: '#EEF2F7' } }, y: { grid: { display: false } } }
-        }
+            scales: {
+                x: { beginAtZero: true, max: 120, grid: { color: '#EEF2F7' } },
+                y: { grid: { display: false } },
+            },
+        },
     });
 }
 
@@ -70,10 +86,18 @@ if (document.getElementById('downtimeChart')) {
             datasets: [{
                 data: chartDowntime.data.length ? chartDowntime.data : [1],
                 backgroundColor: COLORS.palette,
-                borderWidth: 2, borderColor: '#fff'
-            }]
+                borderWidth: 2,
+                borderColor: '#fff',
+            }],
         },
-        options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } }
+        options: {
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { boxWidth: 10, font: { size: 11 } },
+                },
+            },
+        },
     });
 }
 
@@ -84,13 +108,17 @@ if (document.getElementById('defectChart')) {
             labels: chartDefects.labels.length ? chartDefects.labels : ['No defects today'],
             datasets: [{
                 data: chartDefects.data.length ? chartDefects.data : [0],
-                backgroundColor: COLORS.danger, borderRadius: 6
-            }]
+                backgroundColor: COLORS.danger,
+                borderRadius: 6,
+            }],
         },
         options: {
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, grid: { color: '#EEF2F7' } }, x: { grid: { display: false } } }
-        }
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#EEF2F7' } },
+                x: { grid: { display: false } },
+            },
+        },
     });
 }
 

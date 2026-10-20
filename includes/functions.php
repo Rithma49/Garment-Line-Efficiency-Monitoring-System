@@ -3,10 +3,6 @@
  * GLEMS - Reusable Helper Functions
  */
 
-// -------------------------------------------------------------------
-// INPUT / OUTPUT SAFETY
-// -------------------------------------------------------------------
-
 function e(?string $value): string
 {
     return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
@@ -29,10 +25,6 @@ function get(string $key, $default = null)
 {
     return isset($_GET[$key]) ? clean_input($_GET[$key]) : $default;
 }
-
-// -------------------------------------------------------------------
-// CSRF PROTECTION
-// -------------------------------------------------------------------
 
 function csrf_token(): string
 {
@@ -60,10 +52,6 @@ function require_csrf(): void
     }
 }
 
-// -------------------------------------------------------------------
-// FLASH MESSAGES
-// -------------------------------------------------------------------
-
 function set_flash(string $type, string $message): void
 {
     $_SESSION['flash'][] = ['type' => $type, 'message' => $message];
@@ -75,10 +63,6 @@ function get_flashes(): array
     unset($_SESSION['flash']);
     return $flashes;
 }
-
-// -------------------------------------------------------------------
-// ACTIVITY LOG
-// -------------------------------------------------------------------
 
 function log_activity(string $action, string $module = '', string $description = ''): void
 {
@@ -101,39 +85,43 @@ function log_activity(string $action, string $module = '', string $description =
     }
 }
 
-// -------------------------------------------------------------------
-// EFFICIENCY / KPI CALCULATIONS
-// -------------------------------------------------------------------
-
 function calc_efficiency(float $producedQty, float $targetQty): float
 {
-    if ($targetQty <= 0) return 0.0;
+    if ($targetQty <= 0) {
+        return 0.0;
+    }
     return round(($producedQty / $targetQty) * 100, 2);
 }
 
 function calc_achievement(float $producedQty, float $rejectedQty, float $targetQty): float
 {
-    if ($targetQty <= 0) return 0.0;
+    if ($targetQty <= 0) {
+        return 0.0;
+    }
     return round((($producedQty - $rejectedQty) / $targetQty) * 100, 2);
 }
 
 function efficiency_badge_class(float $efficiency): string
 {
-    if ($efficiency >= EFFICIENCY_GOOD) return 'success';
-    if ($efficiency >= EFFICIENCY_WARN) return 'warning';
+    if ($efficiency >= EFFICIENCY_GOOD) {
+        return 'success';
+    }
+    if ($efficiency >= EFFICIENCY_WARN) {
+        return 'warning';
+    }
     return 'danger';
 }
 
 function efficiency_badge_label(float $efficiency): string
 {
-    if ($efficiency >= EFFICIENCY_GOOD) return 'Good';
-    if ($efficiency >= EFFICIENCY_WARN) return 'Average';
+    if ($efficiency >= EFFICIENCY_GOOD) {
+        return 'Good';
+    }
+    if ($efficiency >= EFFICIENCY_WARN) {
+        return 'Average';
+    }
     return 'Low';
 }
-
-// -------------------------------------------------------------------
-// NOTIFICATIONS
-// -------------------------------------------------------------------
 
 function push_notification(?int $userId, string $type, string $title, string $message, ?string $link = null): void
 {
@@ -142,19 +130,23 @@ function push_notification(?int $userId, string $type, string $title, string $me
         $stmt = $pdo->prepare(
             'INSERT INTO notifications (user_id, type, title, message, link) VALUES (:uid, :type, :title, :msg, :link)'
         );
-        $stmt->execute(['uid' => $userId, 'type' => $type, 'title' => $title, 'msg' => $message, 'link' => $link]);
+        $stmt->execute([
+            'uid'   => $userId,
+            'type'  => $type,
+            'title' => $title,
+            'msg'   => $message,
+            'link'  => $link,
+        ]);
     } catch (Throwable $e) {
         error_log('Notification push failed: ' . $e->getMessage());
     }
 }
 
-// -------------------------------------------------------------------
-// FORMATTING HELPERS
-// -------------------------------------------------------------------
-
 function format_date(?string $date, string $format = 'd M Y'): string
 {
-    if (empty($date) || $date === '0000-00-00') return '-';
+    if (empty($date) || $date === '0000-00-00') {
+        return '-';
+    }
     return date($format, strtotime($date));
 }
 
@@ -166,16 +158,37 @@ function format_number($num): string
 function status_badge(string $status): string
 {
     $map = [
-        'active'      => 'success', 'running'  => 'success', 'resolved' => 'success',
-        'inactive'    => 'secondary', 'idle'    => 'secondary',
-        'stopped'     => 'danger',  'suspended' => 'danger', 'absent'   => 'danger',
-        'maintenance' => 'warning', 'open'     => 'warning', 'pending'  => 'warning',
-        'in_progress' => 'info',    'present'  => 'success', 'leave'    => 'info',
-        'completed'   => 'primary', 'delayed'  => 'danger', 'cancelled' => 'secondary',
+        'active'      => 'success',
+        'running'     => 'success',
+        'resolved'    => 'success',
+        'present'     => 'success',
+        'inactive'    => 'secondary',
+        'idle'        => 'secondary',
+        'cancelled'   => 'secondary',
+        'stopped'     => 'danger',
+        'suspended'   => 'danger',
+        'absent'      => 'danger',
+        'delayed'     => 'danger',
+        'maintenance' => 'warning',
+        'open'        => 'warning',
+        'pending'     => 'warning',
+        'in_progress' => 'info',
+        'leave'       => 'info',
+        'completed'   => 'primary',
     ];
+
     $class = $map[$status] ?? 'secondary';
     $label = ucwords(str_replace('_', ' ', $status));
-    return '<span class="badge bg-' . $class . '">' . e($label) . '</span>';
+    $icon  = 'fa-circle-info';
+
+    if ($class === 'success')  { $icon = 'fa-circle-check'; }
+    if ($class === 'danger')   { $icon = 'fa-circle-xmark'; }
+    if ($class === 'warning')  { $icon = 'fa-triangle-exclamation'; }
+    if ($class === 'info')     { $icon = 'fa-circle-info'; }
+    if ($class === 'primary')  { $icon = 'fa-circle-check'; }
+    if ($class === 'secondary'){ $icon = 'fa-circle-minus'; }
+
+    return '<span class="badge bg-' . $class . '"><i class="fas ' . $icon . ' me-1"></i>' . e($label) . '</span>';
 }
 
 function paginate(int $totalRows, int $perPage = 20): array
@@ -184,18 +197,36 @@ function paginate(int $totalRows, int $perPage = 20): array
     $totalPages = max(1, (int)ceil($totalRows / $perPage));
     $page = min($page, $totalPages);
     $offset = ($page - 1) * $perPage;
-    return ['offset' => $offset, 'limit' => $perPage, 'page' => $page, 'total_pages' => $totalPages];
+
+    return [
+        'offset'      => $offset,
+        'limit'       => $perPage,
+        'page'        => $page,
+        'total_pages' => $totalPages,
+    ];
 }
 
 function handle_image_upload(array $file, string $subfolder): ?string
 {
-    if (empty($file['name']) || $file['error'] !== UPLOAD_ERR_OK) return null;
+    if (empty($file['name']) || $file['error'] !== UPLOAD_ERR_OK) {
+        return null;
+    }
+
     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    if (!in_array($ext, ALLOWED_IMAGE_TYPES, true)) return null;
-    if ($file['size'] > MAX_UPLOAD_SIZE) return null;
+
+    if (!in_array($ext, ALLOWED_IMAGE_TYPES, true)) {
+        return null;
+    }
+
+    if ($file['size'] > MAX_UPLOAD_SIZE) {
+        return null;
+    }
 
     $destDir = UPLOAD_PATH . '/' . trim($subfolder, '/');
-    if (!is_dir($destDir)) mkdir($destDir, 0755, true);
+
+    if (!is_dir($destDir)) {
+        mkdir($destDir, 0755, true);
+    }
 
     $filename = bin2hex(random_bytes(8)) . '_' . time() . '.' . $ext;
     $destPath = $destDir . '/' . $filename;

@@ -19,19 +19,29 @@ if ($sql === false || trim($sql) === '') {
 
 try {
     $pdo = getDBConnection();
+
     // Split on statement-terminating semicolons (simple backups only; for complex dumps use a CLI import instead)
     $statements = array_filter(array_map('trim', explode(";\n", $sql)));
+
     $pdo->beginTransaction();
+
     foreach ($statements as $stmt) {
-        if ($stmt === '' || str_starts_with($stmt, '--')) continue;
+        if ($stmt === '' || str_starts_with($stmt, '--')) {
+            continue;
+        }
         $pdo->exec($stmt);
     }
+
     $pdo->commit();
+
     log_activity('restore', 'settings', 'Restored database from uploaded backup');
     set_flash('success', 'Database restored successfully.');
 } catch (Throwable $e) {
-    if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
+    if (isset($pdo) && $pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     error_log($e->getMessage());
     set_flash('danger', 'Restore failed: the backup file may be invalid or incompatible.');
 }
+
 redirect(BASE_URL . '/admin/settings.php');

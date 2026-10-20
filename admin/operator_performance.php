@@ -23,10 +23,14 @@ $stmt->execute(['from' => $from, 'to' => $to, 'from3' => $from, 'to3' => $to]);
 $performance = $stmt->fetchAll();
 
 $rank = 1;
-$labels = []; $attendanceRates = [];
+$labels = [];
+$attendanceRates = [];
+
 foreach ($performance as &$row) {
     $row['rank'] = $rank++;
-    $row['attendance_rate'] = $row['days_total'] > 0 ? round(($row['days_present'] / $row['days_total']) * 100, 1) : 0;
+    $row['attendance_rate'] = $row['days_total'] > 0
+        ? round(($row['days_present'] / $row['days_total']) * 100, 1)
+        : 0;
     $labels[] = $row['full_name'];
     $attendanceRates[] = $row['attendance_rate'];
 }
@@ -37,39 +41,73 @@ $activePage = 'performance';
 $breadcrumbs = [['label' => 'Operator Performance']];
 include BASE_PATH . '/includes/layout_start.php';
 ?>
+
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h4 class="fw-bold mb-0">Operator Performance</h4>
+    <h4 class="fw-bold mb-0">
+        <i class="fa-solid fa-ranking-star me-2"></i>Operator Performance
+    </h4>
     <form method="GET" class="d-flex gap-2">
         <input type="date" name="from" class="form-control form-control-sm" value="<?= e($from) ?>">
         <input type="date" name="to" class="form-control form-control-sm" value="<?= e($to) ?>">
-        <button class="btn btn-outline-secondary btn-sm">Apply</button>
+        <button class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-filter me-1"></i>Apply
+        </button>
     </form>
 </div>
 
-<div class="card mb-3">
-    <div class="card-header">Attendance Rate by Operator</div>
-    <div class="card-body"><canvas id="perfChart" height="90"></canvas></div>
+<div class="card mb-3 shadow-sm border-0">
+    <div class="card-header">
+        <i class="fa-solid fa-chart-column me-2"></i>Attendance Rate by Operator
+    </div>
+    <div class="card-body">
+        <canvas id="perfChart" height="90"></canvas>
+    </div>
 </div>
 
-<div class="card">
+<div class="card shadow-sm border-0">
     <div class="table-responsive">
         <table class="table table-hover mb-0 align-middle">
-            <thead><tr><th>Rank</th><th>Operator</th><th>Line</th><th>Days Present</th><th>Attendance %</th><th>Overtime Hrs</th><th>Defects Caused</th></tr></thead>
+            <thead class="table-light">
+                <tr>
+                    <th><i class="fa-solid fa-trophy me-1"></i>Rank</th>
+                    <th><i class="fa-solid fa-user me-1"></i>Operator</th>
+                    <th><i class="fa-solid fa-diagram-project me-1"></i>Line</th>
+                    <th><i class="fa-solid fa-calendar-check me-1"></i>Days Present</th>
+                    <th><i class="fa-solid fa-percent me-1"></i>Attendance %</th>
+                    <th><i class="fa-solid fa-business-time me-1"></i>Overtime Hrs</th>
+                    <th><i class="fa-solid fa-bug me-1"></i>Defects Caused</th>
+                </tr>
+            </thead>
             <tbody>
-            <?php foreach ($performance as $p): ?>
-            <tr>
-                <td>
-                    <?php if ($p['rank'] <= 3): ?><span class="badge bg-warning">#<?= $p['rank'] ?></span><?php else: ?>#<?= $p['rank'] ?><?php endif; ?>
-                </td>
-                <td class="fw-semibold"><?= e($p['full_name']) ?> <span class="text-muted small">(<?= e($p['employee_id']) ?>)</span></td>
-                <td><?= e($p['line_number'] ?? '-') ?></td>
-                <td><?= e($p['days_present']) ?> / <?= e($p['days_total']) ?></td>
-                <td><?= e($p['attendance_rate']) ?>%</td>
-                <td><?= e($p['overtime']) ?>h</td>
-                <td><?= e($p['defects']) ?></td>
-            </tr>
-            <?php endforeach; ?>
-            <?php if (empty($performance)): ?><tr><td colspan="7" class="text-center text-muted py-4">No performance data available for this period.</td></tr><?php endif; ?>
+                <?php foreach ($performance as $p): ?>
+                <tr>
+                    <td>
+                        <?php if ($p['rank'] <= 3): ?>
+                        <span class="badge bg-warning text-dark">
+                            <i class="fa-solid fa-medal me-1"></i>#<?= $p['rank'] ?>
+                        </span>
+                        <?php else: ?>
+                        #<?= $p['rank'] ?>
+                        <?php endif; ?>
+                    </td>
+                    <td class="fw-semibold">
+                        <?= e($p['full_name']) ?>
+                        <span class="text-muted small">(<?= e($p['employee_id']) ?>)</span>
+                    </td>
+                    <td><?= e($p['line_number'] ?? '-') ?></td>
+                    <td><?= e($p['days_present']) ?> / <?= e($p['days_total']) ?></td>
+                    <td><?= e($p['attendance_rate']) ?>%</td>
+                    <td><?= e($p['overtime']) ?>h</td>
+                    <td><?= e($p['defects']) ?></td>
+                </tr>
+                <?php endforeach; ?>
+                <?php if (empty($performance)): ?>
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        <i class="fa-solid fa-inbox fs-4 d-block mb-2"></i>No performance data available for this period.
+                    </td>
+                </tr>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>
@@ -81,9 +119,17 @@ new Chart(document.getElementById("perfChart"), {
     type: "bar",
     data: {
         labels: ' . json_encode($labels) . ',
-        datasets: [{ label: "Attendance %", data: ' . json_encode($attendanceRates) . ', backgroundColor: "#1E3A8A", borderRadius: 6 }]
+        datasets: [{
+            label: "Attendance %",
+            data: ' . json_encode($attendanceRates) . ',
+            backgroundColor: "#1E3A8A",
+            borderRadius: 6
+        }]
     },
-    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+    options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, max: 100 } }
+    }
 });
 </script>';
 include BASE_PATH . '/includes/layout_end.php';

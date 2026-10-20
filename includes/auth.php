@@ -14,7 +14,6 @@ function attempt_login(string $username, string $password, bool $rememberMe = fa
         return "Too many failed attempts. Please try again in {$wait} minute(s).";
     }
 
-    // FIXED: Use separate placeholders for username and email
     $stmt = $pdo->prepare(
         'SELECT u.*, r.role_slug, r.role_name FROM users u
          JOIN roles r ON r.role_id = u.role_id
@@ -37,19 +36,19 @@ function attempt_login(string $username, string $password, bool $rememberMe = fa
         return 'Your account is ' . $user['status'] . '. Please contact the administrator.';
     }
 
-    // Success — reset attempt counters
     unset($_SESSION[$attemptsKey], $_SESSION[$lockKey]);
     session_regenerate_id(true);
 
-    $_SESSION['user_id']    = $user['user_id'];
-    $_SESSION['full_name']  = $user['full_name'];
-    $_SESSION['username']   = $user['username'];
-    $_SESSION['role_slug']  = $user['role_slug'];
-    $_SESSION['role_name']  = $user['role_name'];
-    $_SESSION['photo']      = $user['profile_photo'];
+    $_SESSION['user_id']       = $user['user_id'];
+    $_SESSION['full_name']     = $user['full_name'];
+    $_SESSION['username']      = $user['username'];
+    $_SESSION['role_slug']     = $user['role_slug'];
+    $_SESSION['role_name']     = $user['role_name'];
+    $_SESSION['photo']         = $user['profile_photo'];
     $_SESSION['last_activity'] = time();
 
-    $pdo->prepare('UPDATE users SET last_login = NOW() WHERE user_id = :id')->execute(['id' => $user['user_id']]);
+    $pdo->prepare('UPDATE users SET last_login = NOW() WHERE user_id = :id')
+        ->execute(['id' => $user['user_id']]);
 
     if ($rememberMe) {
         $token = bin2hex(random_bytes(32));
@@ -77,20 +76,29 @@ function require_login(): void
     if (!is_logged_in() && !empty($_COOKIE['glems_remember'])) {
         attempt_login_via_remember_cookie();
     }
+
     if (!is_logged_in()) {
         redirect(BASE_URL . '/auth/login.php');
     }
+
     if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity']) > SESSION_TIMEOUT) {
         logout_user('Your session has expired due to inactivity.');
     }
+
     $_SESSION['last_activity'] = time();
 }
 
 function attempt_login_via_remember_cookie(): void
 {
-    if (empty($_COOKIE['glems_remember'])) return;
+    if (empty($_COOKIE['glems_remember'])) {
+        return;
+    }
+
     [$userId, $token] = array_pad(explode(':', $_COOKIE['glems_remember'], 2), 2, null);
-    if (!$userId || !$token) return;
+
+    if (!$userId || !$token) {
+        return;
+    }
 
     $pdo = getDBConnection();
     $stmt = $pdo->prepare(
@@ -100,30 +108,38 @@ function attempt_login_via_remember_cookie(): void
     );
     $stmt->execute(['id' => $userId, 't' => hash('sha256', $token)]);
     $user = $stmt->fetch();
-    if (!$user) return;
+
+    if (!$user) {
+        return;
+    }
 
     session_regenerate_id(true);
-    $_SESSION['user_id']   = $user['user_id'];
-    $_SESSION['full_name'] = $user['full_name'];
-    $_SESSION['username']  = $user['username'];
-    $_SESSION['role_slug'] = $user['role_slug'];
-    $_SESSION['role_name'] = $user['role_name'];
-    $_SESSION['photo']     = $user['profile_photo'];
+
+    $_SESSION['user_id']       = $user['user_id'];
+    $_SESSION['full_name']     = $user['full_name'];
+    $_SESSION['username']      = $user['username'];
+    $_SESSION['role_slug']     = $user['role_slug'];
+    $_SESSION['role_name']     = $user['role_name'];
+    $_SESSION['photo']         = $user['profile_photo'];
     $_SESSION['last_activity'] = time();
 }
 
 function logout_user(?string $message = null): void
 {
     log_activity('logout', 'auth', 'User logged out');
+
     if (!empty($_COOKIE['glems_remember'])) {
         setcookie('glems_remember', '', time() - 3600, '/');
     }
+
     $_SESSION = [];
     session_destroy();
+
     if ($message) {
         session_start();
         set_flash('warning', $message);
     }
+
     redirect(BASE_URL . '/auth/login.php');
 }
 
@@ -133,10 +149,6 @@ function redirect(string $url): void
     exit;
 }
 
-// -------------------------------------------------------------------
-// ROLE-BASED ACCESS CONTROL
-// -------------------------------------------------------------------
-
 function current_role(): ?string
 {
     return $_SESSION['role_slug'] ?? null;
@@ -144,9 +156,12 @@ function current_role(): ?string
 
 function has_permission(string $permissionKey): bool
 {
-    if (current_role() === 'admin') return true;
+    if (current_role() === 'admin') {
+        return true;
+    }
 
     static $cache = null;
+
     if ($cache === null) {
         $pdo = getDBConnection();
         $stmt = $pdo->prepare(
@@ -158,25 +173,34 @@ function has_permission(string $permissionKey): bool
         $stmt->execute(['uid' => $_SESSION['user_id'] ?? 0]);
         $cache = array_column($stmt->fetchAll(), 'permission_key');
     }
+
     return in_array($permissionKey, $cache, true);
 }
 
 function require_role(array $allowedRoles): void
 {
     require_login();
+
     if (!in_array(current_role(), $allowedRoles, true)) {
         http_response_code(403);
-        die('<h2 style="font-family:sans-serif;color:#DC2626;text-align:center;margin-top:60px;">
-             403 - Access Denied<br><small style="color:#64748B;font-size:16px;">You do not have permission to view this page.</small></h2>');
+        die('<div style="font-family:sans-serif;text-align:center;margin-top:60px;">
+                <i class="fas fa-ban" style="font-size:48px;color:#DC2626;"></i>
+                <h2 style="color:#DC2626;">403 - Access Denied</h2>
+                <p style="color:#64748B;font-size:16px;">You do not have permission to view this page.</p>
+             </div>');
     }
 }
 
 function require_permission(string $permissionKey): void
 {
     require_login();
+
     if (!has_permission($permissionKey)) {
         http_response_code(403);
-        die('<h2 style="font-family:sans-serif;color:#DC2626;text-align:center;margin-top:60px;">
-             403 - Access Denied<br><small style="color:#64748B;font-size:16px;">You do not have permission to perform this action.</small></h2>');
+        die('<div style="font-family:sans-serif;text-align:center;margin-top:60px;">
+                <i class="fas fa-lock" style="font-size:48px;color:#DC2626;"></i>
+                <h2 style="color:#DC2626;">403 - Access Denied</h2>
+                <p style="color:#64748B;font-size:16px;">You do not have permission to perform this action.</p>
+             </div>');
     }
 }

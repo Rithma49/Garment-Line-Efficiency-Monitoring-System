@@ -3,8 +3,14 @@ require_once dirname(__DIR__) . '/config/config.php';
 require_login();
 header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') { echo json_encode(['success' => false, 'message' => 'Invalid request method.']); exit; }
-if (!verify_csrf($_POST['csrf_token'] ?? null)) { echo json_encode(['success' => false, 'message' => 'Invalid security token. Please refresh the page.']); exit; }
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+    exit;
+}
+if (!verify_csrf($_POST['csrf_token'] ?? null)) {
+    echo json_encode(['success' => false, 'message' => 'Invalid security token. Please refresh the page.']);
+    exit;
+}
 
 $pdo = getDBConnection();
 
@@ -34,9 +40,18 @@ try {
              WHERE line_id=:id'
         );
         $stmt->execute([
-            'ln' => $lineNumber, 'fl' => $floor, 'dp' => $department, 'by' => $buyerId, 'sn' => $styleNumber,
-            'pn' => $productName, 'sup' => $supervisorId, 'oc' => $operatorCnt, 'mc' => $machineCnt,
-            'wh' => $workingHours, 'st' => $status, 'id' => $lineId,
+            'ln'  => $lineNumber,
+            'fl'  => $floor,
+            'dp'  => $department,
+            'by'  => $buyerId,
+            'sn'  => $styleNumber,
+            'pn'  => $productName,
+            'sup' => $supervisorId,
+            'oc'  => $operatorCnt,
+            'mc'  => $machineCnt,
+            'wh'  => $workingHours,
+            'st'  => $status,
+            'id'  => $lineId,
         ]);
         log_activity('update', 'production_lines', "Updated line $lineNumber");
         $message = 'Production line updated successfully.';
@@ -47,16 +62,27 @@ try {
              VALUES (:ln, :fl, :dp, :by, :sn, :pn, :sup, :oc, :mc, :wh, :st)'
         );
         $stmt->execute([
-            'ln' => $lineNumber, 'fl' => $floor, 'dp' => $department, 'by' => $buyerId, 'sn' => $styleNumber,
-            'pn' => $productName, 'sup' => $supervisorId, 'oc' => $operatorCnt, 'mc' => $machineCnt,
-            'wh' => $workingHours, 'st' => $status,
+            'ln'  => $lineNumber,
+            'fl'  => $floor,
+            'dp'  => $department,
+            'by'  => $buyerId,
+            'sn'  => $styleNumber,
+            'pn'  => $productName,
+            'sup' => $supervisorId,
+            'oc'  => $operatorCnt,
+            'mc'  => $machineCnt,
+            'wh'  => $workingHours,
+            'st'  => $status,
         ]);
         log_activity('create', 'production_lines', "Created line $lineNumber");
         $message = 'Production line created successfully.';
     }
+
     echo json_encode(['success' => true, 'message' => $message]);
 } catch (PDOException $e) {
-    $msg = $e->getCode() === '23000' ? 'A line with this number already exists.' : 'Database error occurred.';
+    $msg = $e->getCode() === '23000'
+        ? 'A line with this number already exists.'
+        : 'Database error occurred.';
     error_log($e->getMessage());
     echo json_encode(['success' => false, 'message' => $msg]);
 }

@@ -1,5 +1,5 @@
-</div><!-- /.page-body -->
-    </div><!-- /.main-content -->
+    </div><!-- /.page-body -->
+</div><!-- /.main-content -->
 </div><!-- /.app-shell -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -8,6 +8,7 @@
 <script src="<?= BASE_URL ?>/assets/js/app.js"></script>
 <script>
     const GLEMS_FLASHES = <?= json_encode(get_flashes()) ?>;
+
     document.addEventListener('DOMContentLoaded', () => {
         GLEMS_FLASHES.forEach(f => showToast(f.type, f.message));
         setInterval(fetchNotificationCount, 30000);
